@@ -16,17 +16,29 @@ class Ball:
 
   def __init__(self):
     self.r = 10 # 半径
-    self.x = screen_width / 2 - self.r # 初期横位置
-    self.y = screen_height / 2 - self.r # 初期縦位置
+    self.x = screen_width // 2 - self.r # 初期横位置
+    self.y = screen_height * 3 // 4 - self.r # 初期縦位置
     self.dx = 4 # 初期横移動量
     self.dy = 3 # 初期縦移動量
+  
+  def left(self):
+    return self.x - self.r
+
+  def right(self):
+    return self.x + self.r
+
+  def top(self):
+    return self.y - self.r
+
+  def bottom(self):
+    return self.y + self.r
 
   def draw(self, canvas):
     canvas.create_oval(
         self.x - self.r, self.y - self.r,
         self.x + self.r, self.y + self.r,
         fill = 'green')
-
+  
   def move(self):
     self.x += self.dx
     self.y += self.dy
@@ -57,8 +69,17 @@ class Block:
     return colors[self.life]
 
   def draw(self, canvas):
-    canvas.create_rectangle(self.x(), self.y(), self.x2(), self.y2(), fill=self.color())
+    if self.life > 0:
+      canvas.create_rectangle(self.x(), self.y(), self.x2(), self.y2(), fill=self.color())
 
+  def hit(self, ball):
+    if self.life > 0 and self.x() <= ball.right() and ball.left() <= self.x2() and self.y() <= ball.bottom() and ball.top() <= self.y2():
+      self.life -= 1
+      ball.dx = -ball.dx
+      ball.dy = -ball.dy
+      return True
+    return False
+    
 ball = Ball()
 blocks = []
 for row in range(0, block_rows):
@@ -66,8 +87,13 @@ for row in range(0, block_rows):
   for column in range(0, block_columns):
     blocks[-1].append(Block(row, column))    
 
+print(['left', ball.left(), 'right', ball.right(), 'top', ball.top(), 'bottom', ball.bottom()])
+print(['x', blocks[-1][-1].x(), 'x2', blocks[-1][-1].x2(), 'y', blocks[-1][-1].y(), 'y2', blocks[-1][-1].y2()])
 def gameloop():
   ball.move() # ボール移動
+  for row in blocks: # ブロックの衝突判定
+    for block in row:
+      block.hit(ball)
   canvas.delete('all') # 画面クリア
   for row in blocks: # ブロックの描画
     for block in row:
