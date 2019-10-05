@@ -128,8 +128,12 @@ def gameloop():
   bar.draw(canvas) # バーの描画
   window.after(fps, gameloop) # 繰り返し
 
+def motion(e): # マウスポインタの移動
+    bar.x = e.x
+
 window = tkinter.Tk() # ウインドウ作成
 window.title('ブロックくずし')
+window.bind('<Motion>', motion)
 canvas = tkinter.Canvas(window, width=screen_width, height=screen_height) # 描画領域作成
 canvas.pack() # ウインドウサイズを描画領域に合わせる
 gameloop()
